@@ -23,7 +23,8 @@ defmodule RustledSyntect.MixProject do
 
   defp deps do
     [
-      {:rustler, "~> 0.20.0"}
+      {:rustler, "~> 0.20.0"},
+      {:ex_doc, ">= 0.0.0", only: :dev}
     ]
   end
 
@@ -38,7 +39,7 @@ defmodule RustledSyntect.MixProject do
 
   defp package do
     [
-      files: ["lib", "mix.exs", "README.md", "CODE_OF_CONDUCT.md", "LICENSE.md"],
+      files: ["lib", "mix.exs", "README.md", "CODE_OF_CONDUCT.md", "LICENSE.txt"],
       maintainers: ["Greg V"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/myfreeweb/rustled_syntect"}

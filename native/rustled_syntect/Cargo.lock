@@ -274,7 +274,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "rustled_syntect"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "lazy_static 1.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rustler 0.20.0 (registry+https://github.com/rust-lang/crates.io-index)",
