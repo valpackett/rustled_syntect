@@ -1,7 +1,7 @@
 [![hex.pm version](https://img.shields.io/hexpm/v/rustled_syntect.svg?style=flat)](https://hex.pm/packages/rustled_syntect)
 [![hex.pm downloads](https://img.shields.io/hexpm/dt/rustled_syntect.svg?style=flat)](https://hex.pm/packages/rustled_syntect)
 [![API Docs](https://img.shields.io/badge/api-docs-yellow.svg?style=flat)](https://hexdocs.pm/rustled_syntect/)
-[![unlicense](https://img.shields.io/badge/un-license-green.svg?style=flat)](http://unlicense.org)
+[![MIT License](https://img.shields.io/badge/mit-license-green.svg?style=flat)](https://mit-license.org)
 
 # rustled_syntect
 
@@ -86,5 +86,4 @@ By participating in this project you agree to follow the [Contributor Code of Co
 
 ## License
 
-This is free and unencumbered software released into the public domain.  
-For more information, please refer to the `UNLICENSE` file or [unlicense.org](https://unlicense.org).
+Like Syntect itself, this binding is available under the MIT License.
