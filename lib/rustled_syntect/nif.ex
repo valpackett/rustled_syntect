@@ -4,4 +4,6 @@ defmodule RustledSyntect.Nif do
   def new_highlighter(_lang), do: :erlang.nif_error(:nif_not_loaded)
   def highlight_line(_hl, _line), do: :erlang.nif_error(:nif_not_loaded)
   def finalize(_hl), do: :erlang.nif_error(:nif_not_loaded)
+
+  def langs(), do: :erlang.nif_error(:nif_not_loaded)
 end

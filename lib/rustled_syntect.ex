@@ -36,4 +36,6 @@ defmodule RustledSyntect do
       end)
     )
   end
+
+  def supported_langs, do: Nif.langs()
 end

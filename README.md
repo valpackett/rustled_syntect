@@ -44,6 +44,38 @@ iex> RustledSyntect.hilite_stream(["(0..69).each do |x|", "  puts x", "end"], la
 <span class="keyword control ruby">end</span></span>
 ```
 
+```elixir
+iex> RustledSyntect.supported_langs
+[
+  %RustledSyntect.Syntax{
+    file_extensions: ["txt"],
+    first_line_match: nil,
+    name: "Plain Text"
+  },
+  %RustledSyntect.Syntax{
+    file_extensions: ["asa"],
+    first_line_match: nil,
+    name: "ASP"
+  },
+  %RustledSyntect.Syntax{
+    file_extensions: ["asp"],
+    first_line_match: nil,
+    name: "HTML (ASP)"
+  },
+  %RustledSyntect.Syntax{
+    file_extensions: ["as"],
+    first_line_match: nil,
+    name: "ActionScript"
+  },
+  %RustledSyntect.Syntax{
+    file_extensions: ["applescript", "script editor"],
+    first_line_match: "^#!.*(osascript)",
+    name: "AppleScript"
+  },
+  …
+] 
+```
+
 ## Contributing
 
 Please feel free to submit pull requests!

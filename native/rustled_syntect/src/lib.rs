@@ -1,4 +1,5 @@
 #[macro_use] extern crate rustler;
+#[macro_use] extern crate rustler_codegen;
 #[macro_use] extern crate lazy_static;
 extern crate syntect;
 
@@ -26,6 +27,8 @@ rustler_export_nifs! {
         ("new_highlighter", 1, new_highlighter),
         ("highlight_line", 2, highlight_line),
         ("finalize", 1, finalize),
+
+        ("langs", 0, langs),
     ],
     Some(on_load)
 }
@@ -52,6 +55,24 @@ fn finalize<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     let hlw: ResourceArc<ClassedStreamHlWrap> = args[0].decode()?;
     let hl = hlw.0.borrow();
     Ok(hl.finalize().encode(env))
+}
+
+fn langs<'a>(env: Env<'a>, _args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    Ok((*SYNTAX_SET).syntaxes().iter().map(|s| {
+        SyntaxData {
+            name: s.name.clone(),
+            file_extensions: s.file_extensions.clone(),
+            first_line_match: s.first_line_match.clone(),
+        }
+    }).collect::<Vec<_>>().encode(env))
+}
+
+#[derive(NifStruct)]
+#[module = "RustledSyntect.Syntax"]
+struct SyntaxData {
+    name: String,
+    file_extensions: Vec<String>,
+    first_line_match: Option<String>,
 }
 
 struct ClassedStreamHl {
