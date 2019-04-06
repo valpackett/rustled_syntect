@@ -1,0 +1,15 @@
+[package]
+name = "rustled_syntect"
+version = "0.0.0"
+authors = []
+
+[lib]
+name = "rustled_syntect"
+path = "src/lib.rs"
+crate-type = ["dylib"]
+
+[dependencies]
+rustler = "0.20.0"
+rustler_codegen = "0.20.0"
+lazy_static = "1.0"
+syntect = { version = "3.2.0", features = ["parsing", "html"] }
