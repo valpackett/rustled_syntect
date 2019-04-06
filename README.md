@@ -36,6 +36,9 @@ $ mix deps.get
 
 ```elixir
 iex> RustledSyntect.hilite_stream(["(0..69).each do |x|", "  puts x", "end"], lang: "Ruby") |> Enum.into([]) |> IO.puts
+```
+
+```html
 <span class="source ruby"><span class="punctuation definition group begin ruby">(</span><span class="constant numeric ruby">0</span><span class="keyword operator ruby">..</span><span class="constant numeric ruby">69</span><span class="punctuation definition group end ruby">)</span><span class="punctuation accessor ruby">.</span>each <span class="keyword control start-block ruby">do</span> <span class="meta block parameters ruby"><span class="punctuation definition parameters begin ruby">|</span></span><span class="meta block parameters ruby"><span class="variable parameter ruby">x</span><span class="meta block parameters ruby"><span class="punctuation definition parameters end ruby">|</span></span></span>
   <span class="support function builtin ruby">puts</span> x
 <span class="keyword control ruby">end</span></span>
