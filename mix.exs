@@ -4,15 +4,16 @@ defmodule RustledSyntect.MixProject do
   def project do
     [
       app: :rustled_syntect,
-      description: "Rustler binding for the Syntect syntax highlighter, with streaming and iolists",
+      description:
+        "Rustler binding for the Syntect syntax highlighter, with streaming and iolists",
       version: "0.0.0",
       elixir: "~> 1.7",
-      build_embedded: Mix.env == :prod,
-      start_permanent: Mix.env == :prod,
-      compilers: [:rustler] ++ Mix.compilers,
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      compilers: [:rustler] ++ Mix.compilers(),
       rustler_crates: rustler_crates(),
       deps: deps(),
-      package: package(),
+      package: package()
     ]
   end
 

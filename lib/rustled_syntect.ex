@@ -22,15 +22,18 @@ defmodule RustledSyntect do
       ]
 
   '''
-  @spec hilite_stream(Enumerable.t(), [{:lang, String.Chars.t}]) :: Enumerable.t()
+  @spec hilite_stream(Enumerable.t(), [{:lang, String.Chars.t()}]) :: Enumerable.t()
   def hilite_stream(stream, lang: lang) do
     hl = Nif.new_highlighter(lang)
+
     stream
     |> Stream.map(fn line -> Nif.highlight_line(hl, line) end)
     |> Stream.intersperse("\n")
-    |> Stream.concat(Stream.unfold(true, fn
-      true -> {Nif.finalize(hl), false}
-      false -> nil
-    end))
+    |> Stream.concat(
+      Stream.unfold(true, fn
+        true -> {Nif.finalize(hl), false}
+        false -> nil
+      end)
+    )
   end
 end
