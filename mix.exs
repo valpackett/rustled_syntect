@@ -39,7 +39,7 @@ defmodule RustledSyntect.MixProject do
 
   defp package do
     [
-      files: ["lib", "mix.exs", "README.md", "CODE_OF_CONDUCT.md", "LICENSE.txt"],
+      files: ["native", "lib", "mix.exs", "README.md", "CODE_OF_CONDUCT.md", "LICENSE.txt"],
       maintainers: ["Greg V"],
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/myfreeweb/rustled_syntect"}
