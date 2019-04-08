@@ -6,7 +6,7 @@ defmodule RustledSyntect.MixProject do
       app: :rustled_syntect,
       description:
         "Rustler binding for the Syntect syntax highlighter, with streaming and iolists",
-      version: "0.1.0",
+      version: "0.1.1",
       elixir: "~> 1.7",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
