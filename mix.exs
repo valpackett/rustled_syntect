@@ -10,8 +10,6 @@ defmodule RustledSyntect.MixProject do
       elixir: "~> 1.7",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
-      compilers: [:rustler] ++ Mix.compilers(),
-      rustler_crates: rustler_crates(),
       deps: deps(),
       package: package()
     ]
@@ -25,15 +23,6 @@ defmodule RustledSyntect.MixProject do
     [
       {:rustler, git: "https://github.com/rusterlium/rustler.git", sparse: "rustler_mix"},
       {:ex_doc, ">= 0.0.0", only: :dev}
-    ]
-  end
-
-  defp rustler_crates do
-    [
-      rustled_syntect: [
-        path: "native/rustled_syntect",
-        mode: :release
-      ]
     ]
   end
 
