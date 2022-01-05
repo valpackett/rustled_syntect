@@ -21,7 +21,7 @@ defmodule RustledSyntect.MixProject do
 
   defp deps do
     [
-      {:rustler, git: "https://github.com/rusterlium/rustler.git", sparse: "rustler_mix"},
+      {:rustler, "~> 0.23.0"},
       {:ex_doc, ">= 0.0.0", only: :dev}
     ]
   end
