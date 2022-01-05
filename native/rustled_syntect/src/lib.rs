@@ -1,10 +1,10 @@
-#[macro_use] extern crate rustler;
+extern crate rustler;
 #[macro_use] extern crate rustler_codegen;
 #[macro_use] extern crate lazy_static;
 extern crate syntect;
 
 use std::cell::RefCell;
-use rustler::{Env, Term, NifResult, Encoder, ResourceArc};
+use rustler::{Env, Term, NifResult, ResourceArc};
 use syntect::{
     parsing::{SyntaxSet, SyntaxReference, ParseState},
     html::{tokens_to_classed_spans, ClassStyle}
@@ -16,55 +16,54 @@ lazy_static! {
 }
 
 mod atoms {
-    rustler_atoms! {
-        atom ok;
+    rustler::atoms! {
+        ok,
     }
 }
 
-rustler_export_nifs! {
+rustler::init!(
     "Elixir.RustledSyntect.Nif",
     [
-        ("new_highlighter", 1, new_highlighter),
-        ("highlight_line", 2, highlight_line),
-        ("finalize", 1, finalize),
+         new_highlighter,
+         highlight_line,
+         finalize,
 
-        ("langs", 0, langs),
+        langs
     ],
-    Some(on_load)
-}
+    load = on_load);
 
 fn on_load(env: Env, _info: Term) -> bool {
-    resource_struct_init!(ClassedStreamHlWrap, env);
+    rustler::resource!(ClassedStreamHlWrap, env);
     true
 }
 
-fn new_highlighter<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
-    let lang: &str = args[0].decode()?;
+#[rustler::nif]
+fn new_highlighter(lang: &str) -> NifResult<ResourceArc<ClassedStreamHlWrap>> {
     let syntax = &*SYNTAX_SET.find_syntax_by_name(lang).ok_or(rustler::Error::Atom("unknown_lang"))?;
-    Ok(ResourceArc::new(ClassedStreamHlWrap(RefCell::new(ClassedStreamHl::new(syntax)))).encode(env))
+    Ok(ResourceArc::new(ClassedStreamHlWrap(RefCell::new(ClassedStreamHl::new(syntax)))))
 }
 
-fn highlight_line<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
-    let hlw: ResourceArc<ClassedStreamHlWrap> = args[0].decode()?;
+#[rustler::nif]
+fn highlight_line(hlw: ResourceArc<ClassedStreamHlWrap>, line: &str) -> NifResult<String> {
     let mut hl = hlw.0.borrow_mut();
-    let line: &str = args[1].decode()?;
-    Ok(hl.parse_html_for_line(line).encode(env))
+    Ok(hl.parse_html_for_line(line))
 }
 
-fn finalize<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
-    let hlw: ResourceArc<ClassedStreamHlWrap> = args[0].decode()?;
+#[rustler::nif]
+fn finalize(hlw: ResourceArc<ClassedStreamHlWrap>) -> NifResult<Vec<&'static str>> {
     let hl = hlw.0.borrow();
-    Ok(hl.finalize().encode(env))
+    Ok(hl.finalize())
 }
 
-fn langs<'a>(env: Env<'a>, _args: &[Term<'a>]) -> NifResult<Term<'a>> {
+#[rustler::nif]
+fn langs() -> NifResult<Vec<SyntaxData>> {
     Ok((*SYNTAX_SET).syntaxes().iter().map(|s| {
         SyntaxData {
             name: s.name.clone(),
             file_extensions: s.file_extensions.clone(),
             first_line_match: s.first_line_match.clone(),
         }
-    }).collect::<Vec<_>>().encode(env))
+    }).collect::<Vec<_>>())
 }
 
 #[derive(NifStruct)]
