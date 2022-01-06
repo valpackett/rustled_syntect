@@ -24,9 +24,9 @@ mod atoms {
 rustler::init!(
     "Elixir.RustledSyntect.Nif",
     [
-         new_highlighter,
-         highlight_line,
-         finalize,
+        new_highlighter,
+        highlight_line,
+        finalize,
 
         langs
     ],
@@ -36,6 +36,7 @@ fn on_load(env: Env, _info: Term) -> bool {
     rustler::resource!(ClassedStreamHlWrap, env);
     true
 }
+
 
 #[rustler::nif]
 fn new_highlighter(lang: &str) -> NifResult<ResourceArc<ClassedStreamHlWrap>> {
@@ -56,14 +57,25 @@ fn finalize(hlw: ResourceArc<ClassedStreamHlWrap>) -> NifResult<Vec<&'static str
 }
 
 #[rustler::nif]
-fn langs() -> NifResult<Vec<SyntaxData>> {
-    Ok((*SYNTAX_SET).syntaxes().iter().map(|s| {
+fn langs(folder: Option<&str>) -> NifResult<Vec<SyntaxData>> {
+    let ss = make_syntax_set(folder);
+    Ok(ss.syntaxes().iter().map(|s| {
         SyntaxData {
             name: s.name.clone(),
             file_extensions: s.file_extensions.clone(),
             first_line_match: s.first_line_match.clone(),
         }
     }).collect::<Vec<_>>())
+}
+
+fn make_syntax_set(folder: Option<&str>) -> SyntaxSet {
+    let mut ss = SyntaxSet::load_defaults_newlines();
+    if let Some(f) = folder {
+        let mut builder = ss.into_builder();
+        builder.add_from_folder(f, false).unwrap();
+        ss = builder.build()
+    };
+    ss
 }
 
 #[derive(NifStruct)]
