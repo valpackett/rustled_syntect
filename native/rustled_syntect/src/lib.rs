@@ -1,6 +1,6 @@
 extern crate rustler;
 #[macro_use] extern crate rustler_codegen;
-#[macro_use] extern crate lazy_static;
+extern crate lazy_static;
 extern crate syntect;
 
 use std::cell::RefCell;
@@ -9,11 +9,6 @@ use syntect::{
     parsing::{SyntaxSet, SyntaxReference, ParseState},
     html::{tokens_to_classed_spans, ClassStyle}
 };
-
-lazy_static! {
-    static ref SYNTAX_SET: SyntaxSet =
-        SyntaxSet::load_defaults_newlines();
-}
 
 mod atoms {
     rustler::atoms! {
@@ -24,6 +19,7 @@ mod atoms {
 rustler::init!(
     "Elixir.RustledSyntect.Nif",
     [
+        new_syntax_set,
         new_highlighter,
         highlight_line,
         finalize,
@@ -34,14 +30,22 @@ rustler::init!(
 
 fn on_load(env: Env, _info: Term) -> bool {
     rustler::resource!(ClassedStreamHlWrap, env);
+    rustler::resource!(SyntaxSetWrap, env);
     true
+}
+
+#[rustler::nif]
+fn new_syntax_set(folder: Option<&str>) -> NifResult<ResourceArc<SyntaxSetWrap>> {
+    let ss = make_syntax_set(folder);
+    Ok(ResourceArc::new(SyntaxSetWrap(RefCell::new(SyntaxSetE::new(&ss)))))
 }
 
 
 #[rustler::nif]
-fn new_highlighter(lang: &str) -> NifResult<ResourceArc<ClassedStreamHlWrap>> {
-    let syntax = &*SYNTAX_SET.find_syntax_by_name(lang).ok_or(rustler::Error::Atom("unknown_lang"))?;
-    Ok(ResourceArc::new(ClassedStreamHlWrap(RefCell::new(ClassedStreamHl::new(syntax)))))
+fn new_highlighter(ss: ResourceArc<SyntaxSetWrap>, lang: &str) -> NifResult<ResourceArc<ClassedStreamHlWrap>> {
+    let s = ss.0.borrow();
+    let syntax = s.syntax_set.find_syntax_by_name(lang).ok_or(rustler::Error::Atom("unknown_lang"))?;
+    Ok(ResourceArc::new(ClassedStreamHlWrap(RefCell::new(ClassedStreamHl::new(syntax, &s.syntax_set)))))
 }
 
 #[rustler::nif]
@@ -89,6 +93,7 @@ struct SyntaxData {
 struct ClassedStreamHl {
     open_spans: isize,
     parse_state: ParseState,
+    syntax_set: SyntaxSet,
 }
 
 struct ClassedStreamHlWrap(RefCell<ClassedStreamHl>);
@@ -97,15 +102,16 @@ unsafe impl Send for ClassedStreamHlWrap {}
 unsafe impl Sync for ClassedStreamHlWrap {}
 
 impl ClassedStreamHl {
-    pub fn new(syntax_reference: &SyntaxReference) -> ClassedStreamHl {
+    pub fn new(syntax_reference: &SyntaxReference, syntax_set: &SyntaxSet) -> ClassedStreamHl {
         ClassedStreamHl {
             open_spans: 0,
             parse_state: ParseState::new(syntax_reference),
+            syntax_set: syntax_set.clone(),
         }
     }
 
     pub fn parse_html_for_line(&mut self, line: &str) -> String {
-        let parsed_line = self.parse_state.parse_line(line, &*SYNTAX_SET);
+        let parsed_line = self.parse_state.parse_line(line, &self.syntax_set);
         let (formatted_line, delta) = tokens_to_classed_spans(
             line,
             parsed_line.as_slice(),
@@ -120,5 +126,22 @@ impl ClassedStreamHl {
             iolist.push("</span>");
         }
         iolist
+    }
+}
+
+struct SyntaxSetE {
+    syntax_set: SyntaxSet,
+}
+
+struct SyntaxSetWrap(RefCell<SyntaxSetE>);
+
+unsafe impl Send for SyntaxSetWrap {}
+unsafe impl Sync for SyntaxSetWrap {}
+
+impl SyntaxSetE {
+    pub fn new(syntax_set: &SyntaxSet) -> SyntaxSetE {
+        SyntaxSetE {
+            syntax_set: syntax_set.clone(),
+        }
     }
 }

@@ -2,6 +2,18 @@ defmodule RustledSyntect do
   alias RustledSyntect.Nif
 
   @doc ~S'''
+  Creates a new syntax set with the default languages and all language files at the path specified.
+  This can be used to load additional syntax definitions not included in the default Syntect release.
+
+      iex> RustledSyntect.new_syntax_set([code:priv_dir(:rustled_syntect), "packages"] |> Path.join)
+      #Reference<0.3040294775.638451714.65521>
+  '''
+  @spec new_syntax_set(String.Chars.t()) :: Reference
+  def new_syntax_set(extra_syntaxes_path) when is_binary(extra_syntaxes_path) do
+    Nif.new_syntax_set(extra_syntaxes_path)
+  end
+
+  @doc ~S'''
   Syntax highlight an enumerable/stream of lines, producing an iolist.
 
       iex> Enum.join(RustledSyntect.hilite_stream(["(0..69).each do |x|", "  puts x", "end"], lang: "Ruby"), "") <> "\n"
@@ -24,7 +36,28 @@ defmodule RustledSyntect do
   '''
   @spec hilite_stream(Enumerable.t(), [{:lang, String.Chars.t()}]) :: Enumerable.t()
   def hilite_stream(stream, lang: lang) do
-    hl = Nif.new_highlighter(lang)
+    hilite_stream(stream, lang: lang, syntax_set: RustledSyntect.Nif.new_syntax_set())
+  end
+
+  @doc ~S'''
+  Syntax hilight an enumerable/stream of lines with a provided syntax set, producing an iolist.
+
+      # Assuming the priv/packages directory includes an Elixir.sublime-syntax syntax set:
+
+      iex> ss = RustledSyntect.new_syntax_set([code:priv_dir(:rustled_syntect), "packages"] |> Path.join)
+      #Reference<0.3040294775.638451714.65521>
+
+      iex> RustledSyntect.hilite_stream(["defmodule Foo do", "end"], lang: "Elixir", syntax_set: ss) |> Enum.into([])
+      [
+        "<span class=\"source elixir\"><span class=\"meta module elixir\"><span class=\"keyword control module elixir\">defmodule</span> <span class=\"entity name class elixir\">Fo</span> <span class=\"keyword control module elixir\">do</span></span>",
+        "\n",
+        "<span class=\"keyword control elixir\">end</span>",
+        ["</span>"]
+      ]
+  '''
+  @spec hilite_stream(Enumerable.t(), [{:lang, String.Chars.t(), syntax_set: Reference}]) :: Enumerable.t()
+  def hilite_stream(stream, lang: lang, syntax_set: ss) do
+    hl = Nif.new_highlighter(ss, lang)
 
     stream
     |> Stream.map(fn line -> Nif.highlight_line(hl, line) end)
